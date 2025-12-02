@@ -8,12 +8,12 @@ function day01()
     for line in eachline("day01.txt")
         clicks = parse(Int, line[begin+1:end])
         if line[1] == 'R' # positive direction, clockwise
-            part[2] += (position + clicks) ÷ 100
-        else
+            quotient, position = divrem(position + clicks, 100)
+            part[2] += quotient
+        else # counterclockwise, negative direction
             part[2] += ((100 - position) % 100 + clicks) ÷ 100
-            clicks *= -1
-        end # counterclockwise, negative direction
-        position = (position + clicks) % 100
+            position = (position - clicks) % 100
+        end
         if position == 0
             part[1] += 1
         end
@@ -22,4 +22,4 @@ function day01()
 end
 
 @btime day01()
-@show day01() # [1029, 5892]
+@show day01() #[1029, 5892]
