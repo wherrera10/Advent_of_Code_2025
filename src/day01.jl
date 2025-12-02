@@ -12,7 +12,7 @@ function day01()
         else
             part[2] += ((100 - position) % 100 + clicks) ÷ 100
             clicks *= -1
-        end
+        end # counterclockwise, negative direction
         position = (position + clicks) % 100
         if position == 0
             part[1] += 1
