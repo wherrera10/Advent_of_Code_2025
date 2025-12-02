@@ -10,7 +10,7 @@ function day01()
         if line[1] == 'R' # positive direction, clockwise
             part[2] += (position + clicks) ÷ 100
         else
-            part[2] += ((100 - position) % 100 + 1) ÷ 100
+            part[2] += ((100 - position) % 100 + clicks) ÷ 100
             clicks *= -1
         end
         position = (position + clicks) % 100
