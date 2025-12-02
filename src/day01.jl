@@ -5,7 +5,7 @@ using BenchmarkTools
 function day01()
     part = [0, 0]
     position = 50  # starting at position 50
-    for line in eachline("day02.txt")
+    for line in eachline("day01.txt")
         clicks = parse(Int, line[begin+1:end])
         if line[1] == 'R' # positive direction, clockwise
             part[2] += (position + clicks) ÷ 100
