@@ -22,4 +22,4 @@ function day01()
 end
 
 @btime day01()
-@show day01() [1029, 5892]
+@show day01() # [1029, 5892]
