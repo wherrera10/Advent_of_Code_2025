@@ -1,21 +1,25 @@
 # Advent of Code 2025, Day 1
 
+using BenchmarkTools
+
 function day01()
     part = [0, 0]
-    start = 50
-    for line in eachline("day01.txt")
-        newstart = start + (line[1] == 'R' ? 1 : -1) * parse(Int, line[2:end])
-        if newstart > 99
-            part[2] += newstart ÷ 100
-        elseif newstart <= 0
-            part[2] += -newstart ÷ 100 + (start > 0)
+    position = 50  # starting at position 50
+    for line in eachline("day02.txt")
+        clicks = parse(Int, line[begin+1:end])
+        if line[1] == 'R' # positive direction, clockwise
+            part[2] += (position + clicks) ÷ 100
+        else
+            part[2] += ((100 - position) % 100 + 1) ÷ 100
+            clicks *= -1
         end
-        start = (((newstart) % 100) + 100) % 100
-        if start == 0
+        position = (position + clicks) % 100
+        if position == 0
             part[1] += 1
         end
     end
     return part
 end
 
-@show day01()
+@btime day01()
+@show day01() [1029, 5892]
