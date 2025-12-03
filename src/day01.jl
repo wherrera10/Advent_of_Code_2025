@@ -1,25 +1,25 @@
-# Advent of Code 2025, Day 1
-
 using BenchmarkTools
 
 function day01()
     part = [0, 0]
-    position = 50  # starting at position 50
-    for line in eachline("day01.txt")
-        clicks = parse(Int, line[begin+1:end])
-        if line[1] == 'R' # positive direction, clockwise
-            quotient, position = divrem(position + clicks, 100)
-            part[2] += quotient
-        else # counterclockwise, negative direction
-            part[2] += ((100 - position) % 100 + clicks) ÷ 100
-            position = (position - clicks) % 100
+    position, newstart = 50, 50
+    for line in filter(!isempty, split(read("day01.txt", String), '\n'))
+        if line[begin] == 'R' # right, clockwise, positive
+            newstart = position + parse(Int, line[2:end])
+            part[2] += newstart ÷ 100
+        else # left, negative
+            newstart = position - parse(Int, line[2:end])
+            if newstart <= 0
+                part[2] += -newstart ÷ 100 + (position > 0)
+            end
         end
+        position = mod(newstart, 100)
         if position == 0
             part[1] += 1
         end
     end
-    return part
+    return part #  [1029, 5892]
 end
 
 @btime day01()
-@show day01() #[1029, 5892]
+@show day01()
