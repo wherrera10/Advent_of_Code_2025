@@ -2,48 +2,39 @@ using BenchmarkTools
 
 function day04()
 	part = [0, 0]
-	mat = stack([collect(line) for line in readlines("day04.txt")], dims = 1)
+	mat = stack([[c == '@' for c in collect(line)] for line in readlines("day04.txt")], dims = 1)
+	nrows, ncols = size(mat)
+	mat = vcat(zeros(Bool, ncols)', mat, zeros(Bool, ncols)') # wrap rows with 0
+	mat = hcat(zeros(Bool, nrows+2), mat, zeros(Bool, nrows+2)) # wrap cols with 0
 	nrows, ncols = size(mat)
 	removable = Vector{Int}[]
 	for step in 1:length(mat)
-		for y in 1:ncols
-			for x in 1:nrows
-				mat[x, y] != '@' && continue
+		for y in 2:ncols-1
+			for x in 2:nrows-1
+				!mat[x, y] && continue
 				neighborrolls = 0
-				if x > 1
-					if y > 1
-						if mat[x-1, y-1] == '@'
-							neighborrolls += 1
-						end
-					end
-					if y < ncols
-						if mat[x-1, y+1] == '@'
-							neighborrolls += 1
-						end
-					end
-					if mat[x-1, y] == '@'
-						neighborrolls += 1
-					end
-				end
-				if x < nrows
-					if y > 1
-						if mat[x+1, y-1] == '@'
-							neighborrolls += 1
-						end
-					end
-					if y < ncols
-						if mat[x+1, y+1] == '@'
-							neighborrolls += 1
-						end
-					end
-					if mat[x+1, y] == '@'
-						neighborrolls += 1
-					end
-				end
-				if y > 1 && mat[x, y-1] == '@'
+    			if mat[x-1, y-1]
 					neighborrolls += 1
 				end
-				if y < ncols && mat[x, y+1] == '@'
+				if mat[x-1, y+1]
+					neighborrolls += 1
+				end
+				if mat[x-1, y]
+					neighborrolls += 1
+				end
+				if mat[x+1, y-1]
+					neighborrolls += 1
+				end
+				if mat[x+1, y+1]
+					neighborrolls += 1
+				end
+				if mat[x+1, y]
+					neighborrolls += 1
+				end
+				if mat[x, y-1]
+					neighborrolls += 1
+				end
+				if mat[x, y+1]
 					neighborrolls += 1
 				end
 				if neighborrolls < 4
@@ -56,7 +47,7 @@ function day04()
 		end
 		isempty(removable) && break
 		for (x, y) in removable
-			mat[x, y] = '.'
+			mat[x, y] = 0
 			part[2] += 1
 		end
 		empty!(removable)
