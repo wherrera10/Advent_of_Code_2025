@@ -40,15 +40,11 @@ function day04()
 						neighborrolls += 1
 					end
 				end
-				if y > 1
-					if mat[x, y-1] == '@'
-						neighborrolls += 1
-					end
+				if y > 1 && mat[x, y-1] == '@'
+					neighborrolls += 1
 				end
-				if y < ncols
-					if mat[x, y+1] == '@'
-						neighborrolls += 1
-					end
+				if y < ncols && mat[x, y+1] == '@'
+					neighborrolls += 1
 				end
 				if neighborrolls < 4
 					if step == 1
