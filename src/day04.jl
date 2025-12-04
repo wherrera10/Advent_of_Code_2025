@@ -4,8 +4,8 @@ function day04()
 	part = [0, 0]
 	mat = stack([collect(line) for line in readlines("day04.txt")], dims = 1)
 	nrows, ncols = size(mat)
+	removable = Vector{Int}[]
 	for step in 1:length(mat)
-		removable = Vector{Int}[]
 		for y in 1:ncols
 			for x in 1:nrows
 				mat[x, y] != '@' && continue
