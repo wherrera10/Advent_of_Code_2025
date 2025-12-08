@@ -45,7 +45,7 @@ function day08()
         end
     end
 
-    return part # 809097 too low
+    return part # [50760, 3206508875]
 end
 
 @btime day08()
