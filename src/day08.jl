@@ -24,7 +24,7 @@ function day08()
                 # merge circuits
                 union!(circuits[ca], circuits[cb])
                 deleteat!(circuits, cb)
-                if length(circuits) == 1 && length(circuits[begin]) == nboxes && part[2] == 0
+                if length(circuits) == 1 && length(circuits[begin]) == nboxes
                     part[2] = boxes[a][begin] * boxes[b][begin] # done at this point
                     break
                 end
