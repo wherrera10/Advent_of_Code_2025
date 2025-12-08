@@ -11,19 +11,19 @@ function day08()
             push!(distances, (b1, b2) => dist)
         end
     end
-    workpairs = sort(distances, by = last)
-    used = Set{Int}()
-    circuits = Set{Int}[]
+    sort!(distances, by = last)
+    used = BitSet()
+    circuits = BitSet[]
 
-    for connection in eachindex(workpairs)
-        a, b = first(popfirst!(workpairs))
+    for (connection, ((a, b), _)) in enumerate(distances)
         if a ∈ used && b ∈ used
             ca = findfirst(c -> a ∈ c, circuits)
             cb = findfirst(c -> b ∈ c, circuits)
             if ca != cb
                 # merge circuits
                 union!(circuits[ca], circuits[cb])
-                deleteat!(circuits, cb)
+                circuits[cb], circuits[end] = circuits[end], circuits[cb]
+                pop!(circuits) # swap and pop
                 if length(circuits) == 1 && length(circuits[begin]) == nboxes
                     part[2] = boxes[a][begin] * boxes[b][begin] # done at this point
                     break
@@ -39,7 +39,7 @@ function day08()
             push!(circuits, Set([a, b]))
         end
         push!(used, a, b) # mark a and b as used
-        if connection == 1000 # multiply lengths of 3 largest circuits at step 1000 for part 1
+        if connection == 1000 # multiply lengths of 3 largest circuits at step 1000
             sort!(circuits, by = length, rev = true)
             part[1] = prod(length, circuits[begin:(begin+2)])
         end
