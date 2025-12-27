@@ -1,3 +1,22 @@
+"""
+ Day     Seconds
+=================
+day01   0.000221
+day02   0.0744389
+day03   0.0001372
+day04   0.0028733
+day05   0.0001553
+day06   0.0010913
+day07   0.0001078
+day08   0.0272397
+day09   0.0052549
+day10   0.3059402
+day11   0.0014705
+day12   0.0008629
+=================
+Total   0.419793
+"""
+
 using LinearAlgebra
 using BenchmarkTools
 using Graphs
@@ -5,25 +24,6 @@ using Memoization
 using JuMP
 using HiGHS
 # using Plots
-
-"""
- Day     Seconds
-=================
-day01   0.0002207
-day02   0.0719726
-day03   0.0001383
-day04   0.0029193
-day05   0.0001534
-day06   0.0010905
-day07   0.0001092
-day08   0.0269845
-day09   0.0052458
-day10   0.7235545
-day11   0.0014374
-day12   0.0009073
-=================
-Total   0.8347335
-"""
 
 function day01()
     part = [0, 0]
@@ -399,6 +399,11 @@ function day10()
     end
 
     # linear optimization approach for part 2
+    nbuttons = maximum(length, buttons)
+    model = Model(HiGHS.Optimizer)
+    set_silent(model)
+    @variable(model, pressed[1:nbuttons] >= 0, Int)
+    @objective(model, Min, sum(pressed))
     for i in 1:nmachines
         goal = joltage[i]
         njolts = length(goal)
@@ -411,15 +416,10 @@ function day10()
                 end
             end
         end
-        model = Model(HiGHS.Optimizer)
-        set_silent(model)
-        @variable(model, pressed[1:nbuttons] >= 0, Int)
-        for j in 1:njolts
-            @constraint(model, sum(pressed .* bmat[j, :]) == goal[j])
-        end
-        @objective(model, Min, sum(pressed))
+        constraints = [@constraint(model, sum(pressed[1:nbuttons] .* bmat[j, :]) == goal[j]) for j in 1:njolts]
         optimize!(model)
         part[2] += objective_value(model)
+        delete.(model, constraints)
     end
 
     return part # [469, 19293]
