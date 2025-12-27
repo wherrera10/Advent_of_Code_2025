@@ -19,9 +19,6 @@ function day09()
         ], rev = true, by = first)
     part[1] = areas[begin][1]
 
-    vertices = [(r[1], r[2]) for r in redtiles]
-    p = plot(vertices, legend = false)
-    display(p)
 
     lowerright = ntiles ÷ 2 + 1 # lower right corner of rectangle
     quarterway = ntiles ÷ 4
@@ -34,11 +31,11 @@ function day09()
     @assert all(redtiles[j][2] >= uly || redtiles[j][1] >= lrx for j in 1:quarterway)
     candidate = findfirst(a -> a[2][1] == upperleft && a[2][2] == lowerright, areas)
     part[2] = areas[candidate][1]
+    
     #=
     This had to be solved graphically: the solving procedure with plotting is as below.
 
     upperarea = areas[candidate][1]
-
     upperright = lowerright + 1
     urx2, ury2 = redtiles[upperright]
     lastlowerright = findfirst(k -> 3 * quarterway < k < ntiles &&
@@ -51,15 +48,18 @@ function day09()
     candidate2 = findfirst(a -> a[2][1] == upperright && a[2][2] == lowerleft, areas)
     lowerarea = areas[candidate2][1]
     part[2] = max(upperarea, lowerarea)
-      scatter!(p, (lrx, lry), markershape = :star5, markersize = 5, color = :green)
-        plot!(p, [(lrx, lry), (urx, ury), (ulx, uly), (ulx, lry)], color = :gold)
-        scatter!(p, (ulx, uly), markershape = :star5, markersize = 5, color = :red)
-        scatter!(p, (urx2, ury2), markershape = :star5, markersize = 5, color = :yellow)
-        scatter!(p, (llx2, lly2), markershape = :star5, markersize = 5, color = :aquamarine)
-        plot!(p, [(urx2, ury2), (lrx2, lry2), (llx2, lly2), (llx2, ury2)], color = :gold)
-        display(p)
-
+    
+    vertices = [(r[1], r[2]) for r in redtiles]
+    p = plot(vertices, legend = false)
+    scatter!(p, (lrx, lry), markershape = :star5, markersize = 5, color = :green)
+    plot!(p, [(lrx, lry), (urx, ury), (ulx, uly), (ulx, lry)], color = :gold)
+    scatter!(p, (ulx, uly), markershape = :star5, markersize = 5, color = :red)
+    scatter!(p, (urx2, ury2), markershape = :star5, markersize = 5, color = :yellow)
+    scatter!(p, (llx2, lly2), markershape = :star5, markersize = 5, color = :aquamarine)
+    plot!(p, [(urx2, ury2), (lrx2, lry2), (llx2, lly2), (llx2, ury2)], color = :gold)
+    display(p)
     =#
+
     return part # [4735268538, 1537458069]
 end
 
