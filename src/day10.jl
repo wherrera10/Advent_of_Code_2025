@@ -1,8 +1,6 @@
 using BenchmarkTools
-
 using JuMP
 using HiGHS
-
 
 function day10()
     part = [0, 0]
@@ -39,6 +37,11 @@ function day10()
     end
 
     # linear optimization approach for part 2
+    nbuttons = maximum(length, buttons)
+    model = Model(HiGHS.Optimizer)
+    set_silent(model)
+    @variable(model, pressed[1:nbuttons] >= 0, Int)
+    @objective(model, Min, sum(pressed))
     for i in 1:nmachines
         goal = joltage[i]
         njolts = length(goal)
@@ -46,20 +49,15 @@ function day10()
         bmat = zeros(Bool, njolts, nbuttons)
         for j in 1:njolts
             for k in 1:nbuttons
-                if j-1 in buttons[i][k]
+                if j - 1 in buttons[i][k]
                     bmat[j, k] = 1
                 end
             end
         end
-        model = Model(HiGHS.Optimizer)
-        set_silent(model)
-        @variable(model, pressed[1:nbuttons] >= 0, Int)
-        for j in 1:njolts
-            @constraint(model, sum(pressed .* bmat[j, :]) == goal[j])
-        end
-        @objective(model, Min, sum(pressed))
+        constraints = [@constraint(model, sum(pressed[1:nbuttons] .* bmat[j, :]) == goal[j]) for j in 1:njolts]
         optimize!(model)
         part[2] += objective_value(model)
+        delete.(model, constraints)
     end
 
     return part # [469, 19293]
