@@ -381,16 +381,16 @@ end
     end
 	return answer
 end
-function patterns10(coeffs)
-	nbuttons = length(coeffs)
-	nvariables = length(coeffs[begin])
+function patterns10(problemvec)
+	nbuttons = length(problemvec)
+	nvariables = length(problemvec[begin])
 	out = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
 	   for n in 0:(2^nvariables - 1))
 	for npressed in 0:nbuttons
 		for buttons in combinations(0:(nbuttons-1), npressed)
 			pattern = zeros(Int, nvariables)
 			for i in buttons
-				pattern .+= coeffs[i+1]
+				pattern .+= problemvec[i+1]
 			end
 			paritypattern = [p % 2 for p in pattern]
 			if !haskey(out[paritypattern], pattern)
