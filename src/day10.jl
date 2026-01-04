@@ -1,39 +1,39 @@
 using BenchmarkTools
 
-using Combinatorics
 using Memoization
+using Combinatorics
 
 @memoize function dfs10(localgoal, patterncosts)::Int
 	all(i == 0 for i in localgoal) && return 0
 	answer = 1000000
-	parity = [g % 2 for g in localgoal]
+	parity = localgoal .% 2
     for (pattern, pcost) in patterncosts[parity]
         if all(p <= g for (p, g) in zip(pattern, localgoal))
-            newgoal = [(g - p) ÷ 2 for (p, g) in zip(pattern, localgoal)]
+            newgoal = (localgoal .- pattern) .÷ 2
             answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
         end
     end
 	return answer
 end
 
-function patterns10(coeffs)
-	nbuttons = length(coeffs)
-	nvariables = length(coeffs[begin])
-	out = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
+function patterns10(problemvec::Vector{Vector{Int}})::Dict{Vector{Int}, Dict{Vector{Int}, Int}}
+	nbuttons = length(problemvec)
+	nvariables = length(problemvec[begin])
+	result = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
 	   for n in 0:(2^nvariables - 1))
 	for npressed in 0:nbuttons
 		for buttons in combinations(0:(nbuttons-1), npressed)
 			pattern = zeros(Int, nvariables)
 			for i in buttons
-				pattern .+= coeffs[i+1]
+				pattern .+= problemvec[i+1]
 			end
-			paritypattern = [p % 2 for p in pattern]
-			if !haskey(out[paritypattern], pattern)
-				out[paritypattern][pattern] = npressed
+			paritypattern = pattern .% 2
+			if !haskey(result[paritypattern], pattern)
+				result[paritypattern][pattern] = npressed
 			end
 		end
 	end
-	return out
+	return result
 end
 
 function day10()
@@ -49,6 +49,7 @@ function day10()
 	for i in 1:nmachines
 		states = [falses(length(lights[i]))]
 		newstates = Vector{Vector{Bool}}()
+
 		for press in 1:1000
 			for current in states
 				for b in buttons[i]
