@@ -1,66 +1,81 @@
 using BenchmarkTools
-using JuMP
-using HiGHS
+
+using Combinatorics
+using Memoization
+
+@memoize function dfs10(localgoal, patterncosts)::Int
+	all(i == 0 for i in localgoal) && return 0
+	answer = 1000000
+	parity = [g % 2 for g in localgoal]
+    for (pattern, pcost) in patterncosts[parity]
+        if all(p <= g for (p, g) in zip(pattern, localgoal))
+            newgoal = [(g - p) ÷ 2 for (p, g) in zip(pattern, localgoal)]
+            answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
+        end
+    end
+	return answer
+end
+
+function patterns10(coeffs)
+	nbuttons = length(coeffs)
+	nvariables = length(coeffs[begin])
+	out = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
+	   for n in 0:(2^nvariables - 1))
+	for npressed in 0:nbuttons
+		for buttons in combinations(0:(nbuttons-1), npressed)
+			pattern = zeros(Int, nvariables)
+			for i in buttons
+				pattern .+= coeffs[i+1]
+			end
+			paritypattern = [p % 2 for p in pattern]
+			if !haskey(out[paritypattern], pattern)
+				out[paritypattern][pattern] = npressed
+			end
+		end
+	end
+	return out
+end
 
 function day10()
-    part = [0, 0]
-    lights, buttons, joltage = Vector{Bool}[], Vector{Vector{Int}}[], Vector{Int}[] # nb: data is zero-based
-    for line in readlines("day10.txt")
-        txt = split(line, " ")
-        push!(lights, [ch == '#' for ch in popfirst!(txt)[begin+1:end-1]])
-        push!(joltage, parse.(Int, split((pop!(txt))[begin+1:end-1], ',')))
-        push!(buttons, [[parse(Int, s) for s in split(t[begin+1:end-1], ",")] for t in txt])
-    end
-    nmachines = length(lights)
-
-    for i in 1:nmachines
-        states = [falses(length(lights[i]))]
-        newstates = Vector{Vector{Bool}}()
-        for press in 1:1000
-            for current in states
-                for b in buttons[i]
-                    newstate = copy(current)
-                    for pos in b
-                        newstate[pos+1] = !newstate[pos+1]
-                    end
-                    if newstate == lights[i]
-                        part[1] += press
-                        @goto FOUND
-                    end
-                    push!(newstates, newstate)
-                end
-            end
-            states = unique(newstates)
-            empty!(newstates)
-        end
-        @label FOUND
-    end
-
-    # linear optimization approach for part 2
-    nbuttons = maximum(length, buttons)
-    model = Model(HiGHS.Optimizer)
-    set_silent(model)
-    @variable(model, pressed[1:nbuttons] >= 0, Int)
-    @objective(model, Min, sum(pressed))
-    for i in 1:nmachines
-        goal = joltage[i]
-        njolts = length(goal)
-        nbuttons = length(buttons[i])
-        bmat = zeros(Bool, njolts, nbuttons)
-        for j in 1:njolts
-            for k in 1:nbuttons
-                if j - 1 in buttons[i][k]
-                    bmat[j, k] = 1
-                end
-            end
-        end
-        constraints = [@constraint(model, sum(pressed[1:nbuttons] .* bmat[j, :]) == goal[j]) for j in 1:njolts]
-        optimize!(model)
-        part[2] += objective_value(model)
-        delete.(model, constraints)
-    end
-
-    return part # [469, 19293]
+	part = [0, 0]
+	lights, buttons, joltage = Vector{Bool}[], Vector{Vector{Int}}[], Vector{Int}[] # nb: data is zero-based
+	for line in readlines("day10.txt")
+		txt = split(line, " ")
+		push!(lights, [ch == '#' for ch in popfirst!(txt)[(begin+1):(end-1)]])
+		push!(joltage, parse.(Int, split((pop!(txt))[(begin+1):(end-1)], ',')))
+		push!(buttons, [[parse(Int, s) for s in split(t[(begin+1):(end-1)], ",")] for t in txt])
+	end
+	nmachines = length(lights)
+	for i in 1:nmachines
+		states = [falses(length(lights[i]))]
+		newstates = Vector{Vector{Bool}}()
+		for press in 1:1000
+			for current in states
+				for b in buttons[i]
+					newstate = copy(current)
+					for pos in b
+						newstate[pos+1] = !newstate[pos+1]
+					end
+					if newstate == lights[i]
+						part[1] += press
+						@goto FOUND
+					end
+					push!(newstates, newstate)
+				end
+			end
+			states = unique(newstates)
+			empty!(newstates)
+		end
+		@label FOUND
+		problemvec = Vector{Vector{Int}}()
+		for r in buttons[i]
+			row = [Int(k - 1 ∈ r) for k in eachindex(joltage[i])]
+			push!(problemvec, row)
+		end
+		subscore = dfs10(joltage[i], patterns10(problemvec))
+		part[2] += subscore
+	end
+	return part # [469, 19293]
 end
 
 @btime day10()
