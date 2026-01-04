@@ -1,20 +1,20 @@
 """
  Day     Seconds
 =================
-day01   0.0002184
-day02   2.63e-5
-day03   0.0001396
-day04   0.0029179
-day05   0.0001542
-day06   0.0010825
-day07   0.0001053
-day08   0.0269318
-day09   0.0052528
-day10   0.0672347
-day11   0.0023826
-day12   0.0008917
+day01   0.000223
+day02   2.62e-5
+day03   0.0001395
+day04   0.0029038
+day05   0.0001531
+day06   0.0010882
+day07   0.0001145
+day08   0.0268601
+day09   0.0051624
+day10   0.0678977
+day11   0.0017795
+day12   0.0008777
 =================
-Total   0.1073378
+Total   0.1072257
 """
 
 using LinearAlgebra
@@ -372,19 +372,19 @@ end
 @memoize function dfs10(localgoal, patterncosts)::Int
 	all(i == 0 for i in localgoal) && return 0
 	answer = 1000000
-	parity = [g % 2 for g in localgoal]
+	parity = localgoal .% 2
     for (pattern, pcost) in patterncosts[parity]
         if all(p <= g for (p, g) in zip(pattern, localgoal))
-            newgoal = [(g - p) ÷ 2 for (p, g) in zip(pattern, localgoal)]
+            newgoal = (localgoal .- pattern) .÷ 2
             answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
         end
     end
 	return answer
 end
-function patterns10(problemvec)
+function patterns10(problemvec::Vector{Vector{Int}})::Dict{Vector{Int}, Dict{Vector{Int}, Int}}
 	nbuttons = length(problemvec)
 	nvariables = length(problemvec[begin])
-	out = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
+	result = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
 	   for n in 0:(2^nvariables - 1))
 	for npressed in 0:nbuttons
 		for buttons in combinations(0:(nbuttons-1), npressed)
@@ -392,13 +392,13 @@ function patterns10(problemvec)
 			for i in buttons
 				pattern .+= problemvec[i+1]
 			end
-			paritypattern = [p % 2 for p in pattern]
-			if !haskey(out[paritypattern], pattern)
-				out[paritypattern][pattern] = npressed
+			paritypattern = pattern .% 2
+			if !haskey(result[paritypattern], pattern)
+				result[paritypattern][pattern] = npressed
 			end
 		end
 	end
-	return out
+	return result
 end
 function day10()
 	part = [0, 0]
@@ -413,6 +413,7 @@ function day10()
 	for i in 1:nmachines
 		states = [falses(length(lights[i]))]
 		newstates = Vector{Vector{Bool}}()
+
 		for press in 1:1000
 			for current in states
 				for b in buttons[i]
@@ -525,4 +526,3 @@ function time2025()
 end
 
 time2025()
-
