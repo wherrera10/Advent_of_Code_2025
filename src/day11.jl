@@ -1,19 +1,18 @@
 using BenchmarkTools
 
-using Graphs
 using Memoization
 
-""" memoized recursive DFS function to count paths from current to target """
-@memoize function count11paths(graph::SimpleDiGraph, current::Int, target::Int, visited::Set{Int})::Int
+""" memoized recursive DFS function to count paths from current to target without visited """
+@memoize function count11paths(mat::BitMatrix, ncols::Int, current::Int, target::Int, visited::BitVector)::Int
     if current == target
         return 1
     end
     total = 0
-    for neighbor in neighbors(graph, current)
-        if neighbor ∉ visited
-            push!(visited, neighbor)
-            total += count11paths(graph, neighbor, target, visited)
-            delete!(visited, neighbor)
+    for i in 1:ncols
+        if mat[current, i] && !visited[i]
+            visited[i] = true
+            total += count11paths(mat, ncols, i, target, visited)
+            visited[i] = false
         end
     end
     return total
@@ -38,18 +37,19 @@ function day11()
             links[devices[nodes[begin]]] = map(k -> devices[k], nodes[(begin+1):end])
         end
     end
-    graph = SimpleDiGraph(length(devices))
-    for (parent, children) in links
-        for n in children
-            add_edge!(graph, parent, n)
+    matdim = dnumber - 1
+    mat = falses(matdim, matdim)
+    visited = falses(matdim)
+    for i in keys(links)
+        for j in links[i]
+            mat[i, j] = true
         end
     end
     svr, out, you, dac, fft = devices["svr"], devices["out"], devices["you"], devices["dac"], devices["fft"]
-    part[1] = length(collect(all_simple_paths(graph, you, out)))
-
+    part[1] = count11paths(mat, matdim, you, out, visited)
     part[2] =
-        count11paths(graph, svr, fft, Set{Int}()) * count11paths(graph, fft, dac, Set{Int}()) *
-        count11paths(graph, dac, out, Set{Int}())
+        count11paths(mat, matdim, svr, fft, visited) * count11paths(mat, matdim, fft, dac, visited) *
+        count11paths(mat, matdim, dac, out, visited)
 
     return part # [607, 506264456238938]
 end
