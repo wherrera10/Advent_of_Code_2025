@@ -2,7 +2,7 @@ using BenchmarkTools
 
 using Memoization
 
-""" memoized recursive DFS function to count paths from current to target without visited """
+""" memoized recursive DFS function to count paths from current to target """
 @memoize function count11paths(mat::BitMatrix, ncols::Int, current::Int, target::Int, visited::BitVector)::Int
     if current == target
         return 1
