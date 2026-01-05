@@ -14,7 +14,7 @@ day10   0.0675759
 day11   0.0017274
 day12   0.0008873
 =================
-Total   0.1072257
+Total   0.106599
 """
 
 using LinearAlgebra
@@ -441,10 +441,6 @@ function day10()
 	end
 	return part # [469, 19293]
 end
-
-using BenchmarkTools
-
-using Memoization
 
 """ memoized recursive DFS function to count paths from current to target """
 @memoize function count11paths(mat::BitMatrix, ncols::Int, current::Int, target::Int, visited::BitVector)::Int
