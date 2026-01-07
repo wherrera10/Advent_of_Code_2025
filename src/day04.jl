@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 function day04()
 	part = [0, 0]
 	mat = stack([[c == '@' for c in collect(line)] for line in readlines("day04.txt")], dims = 1)
@@ -55,5 +53,5 @@ function day04()
 	return part # [1626, 9173]
 end
 
-@btime day04()
 @show day04()
+
