@@ -1,7 +1,3 @@
-# Advent of Code 2025, Day 3
-
-using BenchmarkTools
-
 function day03()
 	part = [0, 0]
 	lines = split(read("day03.txt", String), '\n')
@@ -26,5 +22,4 @@ function day03()
 	return part # [17408, 172740584266849]
 end
 
-@btime day03()
 @show day03()
