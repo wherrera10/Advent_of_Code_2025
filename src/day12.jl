@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 function day12()
     part = [0, 0]
     shapeareas = Int[]
@@ -21,5 +19,4 @@ function day12()
     return part # [497, 0]
 end
 
-@btime day12()
 @show day12()
