@@ -1,23 +1,31 @@
+using Memoization
 using Combinatorics
 
+""" DFS with memoization to find minimum button presses to reach goal
+	localgoal: current goal vector
+	patterncosts: patterns grouped by parity with their costs
+"""
 @memoize function dfs10(localgoal, patterncosts)::Int
 	all(i == 0 for i in localgoal) && return 0
 	answer = 1000000
 	parity = localgoal .% 2
-    for (pattern, pcost) in patterncosts[parity]
-        if all(p <= g for (p, g) in zip(pattern, localgoal))
-            newgoal = (localgoal .- pattern) .÷ 2
-            answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
-        end
-    end
+	for (pattern, pcost) in patterncosts[parity]
+		if all(p <= g for (p, g) in zip(pattern, localgoal))
+			newgoal = (localgoal .- pattern) .÷ 2
+			answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
+		end
+	end
 	return answer
 end
 
+""" Precompute all possible button press patterns and their costs
+	problemvec: vector of button press effects
+"""
 function patterns10(problemvec::Vector{Vector{Int}})::Dict{Vector{Int}, Dict{Vector{Int}, Int}}
 	nbuttons = length(problemvec)
 	nvariables = length(problemvec[begin])
-	result = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
-	   for n in 0:(2^nvariables - 1))
+	result = Dict(digits(n, base = 2, pad = nvariables) => Dict{Vector{Int}, Int}()
+				  for n in 0:(2^nvariables-1))
 	for npressed in 0:nbuttons
 		for buttons in combinations(0:(nbuttons-1), npressed)
 			pattern = zeros(Int, nvariables)
@@ -43,7 +51,7 @@ function day10()
 		push!(buttons, [[parse(Int, s) for s in split(t[(begin+1):(end-1)], ",")] for t in txt])
 	end
 	nmachines = length(lights)
-	for i in 1:nmachines
+	@Threads.threads for i in 1:nmachines
 		states = [falses(length(lights[i]))]
 		newstates = Vector{Vector{Bool}}()
 
