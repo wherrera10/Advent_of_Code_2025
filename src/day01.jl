@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 function day01()
     part = [0, 0]
     position, newstart = 50, 50
@@ -21,5 +19,4 @@ function day01()
     return part #  [1029, 5892]
 end
 
-@btime day01()
 @show day01()
