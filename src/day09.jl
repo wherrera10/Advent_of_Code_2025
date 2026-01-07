@@ -1,5 +1,4 @@
-using BenchmarkTools
-using Plots
+#using Plots
 
 function day09()
     part = [0, 0]
@@ -63,5 +62,4 @@ function day09()
     return part # [4735268538, 1537458069]
 end
 
-@btime day09()
 @show day09()
