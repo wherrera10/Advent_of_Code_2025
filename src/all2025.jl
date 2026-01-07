@@ -1,20 +1,20 @@
 """
  Day     Seconds
 =================
-day01   0.0002252
-day02   2.66e-5
-day03   0.0001384
-day04   0.0029096
-day05   0.0001536
-day06   0.0010877
-day07   0.0001139
-day08   0.0265189
-day09   0.0052348
-day10   0.0675759
-day11   0.0017274
-day12   0.0008873
+day01   0.0002247
+day02   2.61e-5
+day03   0.0001366
+day04   0.0028541
+day05   0.0001538
+day06   0.0010962
+day07   0.0001028
+day08   0.0269547
+day09   0.0052394
+day10   0.0241538
+day11   0.0019117
+day12   0.0008674
 =================
-Total   0.106599
+Total   0.0637213
 """
 
 using LinearAlgebra
@@ -368,23 +368,30 @@ function day09()
     return part # [4735268538, 1537458069]
 end
 
+""" DFS with memoization to find minimum button presses to reach goal
+	localgoal: current goal vector
+	patterncosts: patterns grouped by parity with their costs
+"""
 @memoize function dfs10(localgoal, patterncosts)::Int
 	all(i == 0 for i in localgoal) && return 0
 	answer = 1000000
 	parity = localgoal .% 2
-    for (pattern, pcost) in patterncosts[parity]
-        if all(p <= g for (p, g) in zip(pattern, localgoal))
-            newgoal = (localgoal .- pattern) .÷ 2
-            answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
-        end
-    end
+	for (pattern, pcost) in patterncosts[parity]
+		if all(p <= g for (p, g) in zip(pattern, localgoal))
+			newgoal = (localgoal .- pattern) .÷ 2
+			answer = min(answer, pcost + 2 * dfs10(newgoal, patterncosts))
+		end
+	end
 	return answer
 end
+""" Precompute all possible button press patterns and their costs
+	problemvec: vector of button press effects
+"""
 function patterns10(problemvec::Vector{Vector{Int}})::Dict{Vector{Int}, Dict{Vector{Int}, Int}}
 	nbuttons = length(problemvec)
 	nvariables = length(problemvec[begin])
-	result = Dict(digits(n, base=2, pad=nvariables) => Dict{Vector{Int}, Int}()
-	   for n in 0:(2^nvariables - 1))
+	result = Dict(digits(n, base = 2, pad = nvariables) => Dict{Vector{Int}, Int}()
+				  for n in 0:(2^nvariables-1))
 	for npressed in 0:nbuttons
 		for buttons in combinations(0:(nbuttons-1), npressed)
 			pattern = zeros(Int, nvariables)
@@ -409,7 +416,7 @@ function day10()
 		push!(buttons, [[parse(Int, s) for s in split(t[(begin+1):(end-1)], ",")] for t in txt])
 	end
 	nmachines = length(lights)
-	for i in 1:nmachines
+	@Threads.threads for i in 1:nmachines
 		states = [falses(length(lights[i]))]
 		newstates = Vector{Vector{Bool}}()
 
