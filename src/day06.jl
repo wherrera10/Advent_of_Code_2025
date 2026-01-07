@@ -1,5 +1,4 @@
 using LinearAlgebra
-using BenchmarkTools
 
 function day06()
     part = [0, 0]
@@ -32,5 +31,4 @@ function day06()
     return part # [5877594983578, 11159825706149]
 end
 
-@btime day06()
 @show day06()
