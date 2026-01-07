@@ -1,58 +1,56 @@
-using BenchmarkTools
-
-using Memoization
+const NODE_COUNT11 = 577
+const DEVICES11 = ["" for _ in 1:NODE_COUNT11]
+const MAT11 = falses(NODE_COUNT11, NODE_COUNT11)
+const PATHCOUNT11 = fill(-1, NODE_COUNT11, NODE_COUNT11)
+const VISITED11 = falses(NODE_COUNT11)
 
 """ memoized recursive DFS function to count paths from current to target """
-@memoize function count11paths(mat::BitMatrix, ncols::Int, current::Int, target::Int, visited::BitVector)::Int
-    if current == target
-        return 1
+function count11paths(current::Int, target::Int)::Int
+    current == target && return 1
+    if PATHCOUNT11[current, target] != -1
+        return PATHCOUNT11[current, target]
     end
     total = 0
-    for i in 1:ncols
-        if mat[current, i] && !visited[i]
-            visited[i] = true
-            total += count11paths(mat, ncols, i, target, visited)
-            visited[i] = false
+    for i in 1:NODE_COUNT11
+        if MAT11[current, i] && !VISITED11[i]
+            VISITED11[i] = true
+            total += count11paths(i, target)
+            VISITED11[i] = false
         end
+    end
+    PATHCOUNT11[current, target] = total
+    if total > 0
+        PATHCOUNT11[target, current] = 0
     end
     return total
 end
 
 function day11()
     part = [0, 0]
-    devices = Dict{String, Int}()
-    dnumber = 1
-    links = Dict{Int, Vector{Int}}()
+    nc = 0
+    DEVICES11 .= ""
     for line in eachline("day11.txt")
         nodes = split(line, r"[\s:]+")
-        for n in nodes
-            if !haskey(devices, n)
-                devices[n] = dnumber
-                dnumber += 1
+        parent = 0
+        for (i, name) in enumerate(nodes)
+            nodeidx = findfirst(==(name), DEVICES11)
+            if nodeidx === nothing
+                nc += 1
+                DEVICES11[nc] = name
+                nodeidx = nc
+            end
+            if i == 1
+                parent = nodeidx
+            else
+                MAT11[parent, nodeidx] = true
             end
         end
-        if haskey(links, devices[nodes[begin]])
-            append!(links[devices[nodes[begin]]], map(k -> devices[k], nodes[(begin+1):end]))
-        else
-            links[devices[nodes[begin]]] = map(k -> devices[k], nodes[(begin+1):end])
-        end
     end
-    matdim = dnumber - 1
-    mat = falses(matdim, matdim)
-    visited = falses(matdim)
-    for i in keys(links)
-        for j in links[i]
-            mat[i, j] = true
-        end
-    end
-    svr, out, you, dac, fft = devices["svr"], devices["out"], devices["you"], devices["dac"], devices["fft"]
-    part[1] = count11paths(mat, matdim, you, out, visited)
-    part[2] =
-        count11paths(mat, matdim, svr, fft, visited) * count11paths(mat, matdim, fft, dac, visited) *
-        count11paths(mat, matdim, dac, out, visited)
-
+    @assert nc == NODE_COUNT11
+    svr, out, you, dac, fft = map(s -> findfirst(==(s), DEVICES11), ["svr", "out", "you", "dac", "fft"])
+    part[1] = count11paths(you, out)
+    part[2] = count11paths(svr, fft) * count11paths(fft, dac) * count11paths(dac, out)
     return part # [607, 506264456238938]
 end
 
-@btime day11()
 @show day11()
