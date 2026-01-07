@@ -1,6 +1,3 @@
-using BenchmarkTools
-
-using Memoization
 using Combinatorics
 
 @memoize function dfs10(localgoal, patterncosts)::Int
@@ -79,5 +76,4 @@ function day10()
 	return part # [469, 19293]
 end
 
-@btime day10()
 @show day10()
