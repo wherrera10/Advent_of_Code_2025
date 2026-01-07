@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 function day08()
     part = [0, 0]
     boxes = [parse.(Int, split(line, ',')) for line in eachline("day08.txt")]
@@ -48,5 +46,4 @@ function day08()
     return part # [50760, 3206508875]
 end
 
-@btime day08()
 @show day08()
