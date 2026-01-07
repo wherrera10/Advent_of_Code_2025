@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 const DAY2_1 = [[2, 1], [4, 2], [6, 3], [8, 4], [10, 5]]
 const DAY2_2 = [[3, 1], [5, 1], [6, 2], [7, 1], [9, 3], [10, 2]]
 const DAY2DUPS = [[6, 1], [10, 1]]
@@ -32,5 +30,4 @@ function day02()
     return part
 end
 
-@btime day02()
 @show day02()
