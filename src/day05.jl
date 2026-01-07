@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 function day05()
     part = [0, 0]
     ranges = UnitRange{Int}[]
@@ -38,5 +36,4 @@ function day05()
     return part # [615, 353716783056994]
 end
 
-@btime day05()
 @show day05()
